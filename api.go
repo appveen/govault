@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 )
@@ -70,4 +71,26 @@ func DownloadTruststore(w http.ResponseWriter, req *http.Request) {
 	}
 	fmt.Println(string(payload))
 	w.Write(payload)
+}
+
+//DownloadTruststoreCLI - downloadTrustStore using CLI
+func DownloadTruststoreCLI(fileName string, content []byte) {
+	downloadRequest := DownloadRequest{}
+	data := content
+	err := json.Unmarshal(data, &downloadRequest)
+	if err != nil {
+		log.Println("error = ", err)
+		return
+	}
+	randomFileName := fileName
+	filePath := randomFileName
+	v := CreateVault(filePath, downloadRequest.StorePassword)
+	for key, value := range downloadRequest.Data {
+		err = v.Upsert(key, value)
+		if err != nil {
+			log.Println("error = ", err)
+			return
+		}
+	}
+	v.Close()
 }

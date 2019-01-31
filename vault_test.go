@@ -6,13 +6,13 @@ import (
 )
 
 func TestNewVaultCreation(t *testing.T) {
-	vault := CreateVault("./testing.vault", "sample")
+	vault := CreateVault("./sample.vault", "sample")
 	fmt.Println(vault)
 	vault.Close()
 }
 
 func TestExistingVaultAccess(t *testing.T) {
-	vault, err := InitVault("./testing.vault", "sample")
+	vault, err := InitVault("./sample.vault", "sample")
 	if err != nil {
 		fmt.Println("error = ", fmt.Sprintf("%s", err))
 	}
@@ -21,7 +21,7 @@ func TestExistingVaultAccess(t *testing.T) {
 }
 
 func TestDataAdditionAndFetchingDataFromVault(t *testing.T) {
-	vault, err := InitVault("./testing.vault", "sample")
+	vault, err := InitVault("./sample.vault", "sample")
 	if err != nil {
 		fmt.Println("error = ", fmt.Sprintf("%s", err))
 	}

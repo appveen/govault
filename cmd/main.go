@@ -1,22 +1,21 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"time"
+	"fmt"
+	"os"
+	"strings"
 
 	".."
-	"github.com/gorilla/mux"
 )
 
+//main.exe -fileName=sample.vault -content="{\"storePassword\" : \"sample\" , \"data\" : { \"key1\" : \"value1\" , \"key2\" : \"value2\"}}"
+
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/download", vault.DownloadTruststore)
-	http.Handle("/", r)
-	srv := &http.Server{
-		Addr:         "127.0.0.1:8000",
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-	log.Fatal(srv.ListenAndServe())
+	arguments := os.Args[1:]
+	fmt.Println(arguments)
+	fileName := strings.Split(arguments[0], "-fileName=")[1]
+	content := strings.Split(arguments[1], "-content=")[1]
+	fmt.Println("FileName = ", fileName)
+	fmt.Println("Content = ", content)
+	vault.DownloadTruststoreCLI(fileName, []byte(content))
 }
