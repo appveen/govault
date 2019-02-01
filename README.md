@@ -1,13 +1,24 @@
-##Golang-Vault
+# Golang-Vault
+A simple password protected key-value trust store for go-lang applications.
 
-- A simple password protected key value truststore for golang applications.
+# Pre-requisites :
+* github.com/boltdb/bolt
+* github.com/gorilla/mux
 
-- Pre-requisites :
-    [1] go get -u github.com/boltdb/bolt
-    [2] go get -u github.com/gorilla/mux
+# Install dependencies
+```
+go get -u github.com/boltdb/bolt
+go get -u github.com/gorilla/mux
+```
 
-- Generate Executable Command
-    go build cmd/main.go
+# Generate Executable
+`go build -o vault cmd/main.go`
 
-- Generate Vault Using CLI
-    main.exe -fileName=sample.vault -content="{\"storePassword\" : \"sample\" , \"data\" : { \"key1\" : \"value1\" , \"key2\" : \"value2\"}}"
+# Usage
+```
+vault
+  -p <Required. Password that has to be set for the vault>
+  -i <Optional. Input JSON file with data that will be added to the vault>
+  -o <Optional. Output filename. Defaults to db.valut>
+
+```
