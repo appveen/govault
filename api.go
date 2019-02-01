@@ -74,18 +74,15 @@ func DownloadTruststore(w http.ResponseWriter, req *http.Request) {
 }
 
 //DownloadTruststoreCLI - downloadTrustStore using CLI
-func DownloadTruststoreCLI(fileName string, content []byte) {
-	downloadRequest := DownloadRequest{}
-	data := content
-	err := json.Unmarshal(data, &downloadRequest)
+func DownloadTruststoreCLI(fileName string, content []byte, password string) {
+	downloadRequest := map[string]string{}
+	err := json.Unmarshal(content, &downloadRequest)
 	if err != nil {
 		log.Println("error = ", err)
 		return
 	}
-	randomFileName := fileName
-	filePath := randomFileName
-	v := CreateVault(filePath, downloadRequest.StorePassword)
-	for key, value := range downloadRequest.Data {
+	v := CreateVault(fileName, password)
+	for key, value := range downloadRequest {
 		err = v.Upsert(key, value)
 		if err != nil {
 			log.Println("error = ", err)
