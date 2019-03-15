@@ -15,8 +15,10 @@ func CreateVault(filePath string, newPassword string) *Vault {
 	bucketName := DEFAULTBUCKETNAME
 	DB := InitDB(filePath, bucketName)
 	random := RandomString(RANDOMSTRINGLENGTH)
-	DB.Upsert(DEFAULTRANDOMKEYNAME, Encrypt([]byte(random), newPassword))
-	DB.Upsert(DEFAULTPASSWORDKEYNAME, Encrypt([]byte(newPassword), random))
+	e1, _ := Encrypt([]byte(random), newPassword)
+	DB.Upsert(DEFAULTRANDOMKEYNAME, e1)
+	e2, _ := Encrypt([]byte(newPassword), random)
+	DB.Upsert(DEFAULTPASSWORDKEYNAME, e2)
 	return &Vault{
 		trustore:      DB,
 		storePassword: newPassword,
@@ -31,12 +33,18 @@ func InitVault(filePath string, storePassword string) (*Vault, error) {
 	if err != nil {
 		return nil, err
 	}
-	decryptedRandomKey := Decrypt(encyptedRandomKey, storePassword)
+	decryptedRandomKey, err := Decrypt(encyptedRandomKey, storePassword)
+	if err != nil {
+		return nil, err
+	}
 	encryptedPassword, err := DB.Get(DEFAULTPASSWORDKEYNAME)
 	if err != nil {
 		return nil, err
 	}
-	extractedPassword := Decrypt(encryptedPassword, string(decryptedRandomKey))
+	extractedPassword, err := Decrypt(encryptedPassword, string(decryptedRandomKey))
+	if err != nil {
+		return nil, err
+	}
 	if string(extractedPassword) != storePassword {
 		return nil, errors.New("Incorrect Password")
 	}
@@ -59,7 +67,7 @@ func (v *Vault) Get(key string) ([]byte, error) {
 	if cipheredData == nil {
 		return nil, nil
 	}
-	return Decrypt(cipheredData, string(encyptedRandomKey)), nil
+	return Decrypt(cipheredData, string(encyptedRandomKey))
 }
 
 //Upsert - add/update value in trustore
@@ -68,7 +76,11 @@ func (v *Vault) Upsert(key string, value string) error {
 	if err != nil {
 		return err
 	}
-	err = v.trustore.Upsert(key, Encrypt([]byte(value), string(encyptedRandomKey)))
+	e, err := Encrypt([]byte(value), string(encyptedRandomKey))
+	if err != nil {
+		return err
+	}
+	err = v.trustore.Upsert(key, e)
 	if err != nil {
 		return err
 	}
@@ -102,12 +114,23 @@ func (v *Vault) ChangePassword(newPassword string) error {
 		case DEFAULTPASSWORDKEYNAME:
 			break
 		default:
-			data[string(k)] = string(Decrypt(v, string(encyptedRandomKey)))
+			d, err := Decrypt(v, string(encyptedRandomKey))
+			if err != nil {
+				return err
+			}
+			data[string(k)] = string(d)
 			break
 		}
 	}
-	decryptedRandomKey := Decrypt(encyptedRandomKey, v.storePassword)
-	newEncryptedRandomKey := string(Encrypt(decryptedRandomKey, newPassword))
+	decryptedRandomKey, err := Decrypt(encyptedRandomKey, v.storePassword)
+	if err != nil {
+		return err
+	}
+	e, err := Encrypt(decryptedRandomKey, newPassword)
+	if err != nil {
+		return err
+	}
+	newEncryptedRandomKey := string(e)
 	for key, value := range data {
 		switch key {
 		case DEFAULTRANDOMKEYNAME:
@@ -115,7 +138,11 @@ func (v *Vault) ChangePassword(newPassword string) error {
 		case DEFAULTPASSWORDKEYNAME:
 			break
 		default:
-			err = bucket.Put([]byte(key), Encrypt([]byte(value), newEncryptedRandomKey))
+			e, err := Encrypt([]byte(value), newEncryptedRandomKey)
+			if err != nil {
+				return err
+			}
+			err = bucket.Put([]byte(key), e)
 			if err != nil {
 				return err
 			}
@@ -126,7 +153,11 @@ func (v *Vault) ChangePassword(newPassword string) error {
 	if err != nil {
 		return err
 	}
-	err = bucket.Put([]byte(DEFAULTPASSWORDKEYNAME), Encrypt([]byte(newPassword), string(decryptedRandomKey)))
+	e2, err := Encrypt([]byte(newPassword), string(decryptedRandomKey))
+	if err != nil {
+		return err
+	}
+	err = bucket.Put([]byte(DEFAULTPASSWORDKEYNAME), e2)
 	if err != nil {
 		return err
 	}
