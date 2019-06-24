@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ..
+cd $WORKSPACE
 
 set -e
 if [ -f ../TOGGLE ]; then
@@ -10,6 +10,10 @@ if [ -f ../TOGGLE ]; then
     echo "****************************************************"
     exit 0
 fi
+
+echo "****************************************************"
+echo "govault :: Building excutables"
+echo "****************************************************"
 
 # echo "env GOOS=android GOARCH=arm go build -o exec/vault-android-arm cmd/main.go"
 # env GOOS=android GOARCH=arm go build -o exec/vault-android-arm cmd/main.go || true
