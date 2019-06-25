@@ -3,7 +3,7 @@
 cd $WORKSPACE
 
 set -e
-if [ -f ../TOGGLE ]; then
+if [ -f $WORKSPACE/../TOGGLE ]; then
 	echo "****************************************************"
     echo "odp:govault :: Toggle mode is on, terminating build"
     echo "odp:govault :: BUILD CANCLED"
