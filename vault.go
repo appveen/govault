@@ -2,10 +2,12 @@ package vault
 
 import (
 	"errors"
+	"sync"
 )
 
 //Vault - Base Vault structure
 type Vault struct {
+	mutex         sync.Mutex
 	storePassword string
 	trustore      *DB
 }
@@ -56,6 +58,8 @@ func InitVault(filePath string, storePassword string) (*Vault, error) {
 
 //Get - get data from trustore
 func (v *Vault) Get(key string) ([]byte, error) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	encyptedRandomKey, err := v.trustore.Get(DEFAULTRANDOMKEYNAME)
 	if err != nil {
 		return nil, err
@@ -72,6 +76,8 @@ func (v *Vault) Get(key string) ([]byte, error) {
 
 //Upsert - add/update value in trustore
 func (v *Vault) Upsert(key string, value string) error {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	encyptedRandomKey, err := v.trustore.Get(DEFAULTRANDOMKEYNAME)
 	if err != nil {
 		return err
@@ -89,12 +95,16 @@ func (v *Vault) Upsert(key string, value string) error {
 
 //Delete - delete a value by key in trustore
 func (v *Vault) Delete(key string) error {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	err := v.trustore.Delete(key)
 	return err
 }
 
 //ChangePassword - change trustore password
 func (v *Vault) ChangePassword(newPassword string) error {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	encyptedRandomKey, err := v.trustore.Get(DEFAULTRANDOMKEYNAME)
 	if err != nil {
 		return err
