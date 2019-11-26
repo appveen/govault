@@ -12,6 +12,15 @@ type Vault struct {
 	trustore      *DB
 }
 
+//VaultService - task of vault
+type VaultService interface {
+	Get(key string) ([]byte, error)
+	Upsert(key string, value string) error
+	Delete(key string) error
+	ChangePassword(newPassword string) error
+	Close() error
+}
+
 //CreateVault - create new vault with specified location and password
 func CreateVault(filePath string, newPassword string) *Vault {
 	bucketName := DEFAULTBUCKETNAME
