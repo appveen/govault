@@ -1,4 +1,4 @@
-FROM golang:1.13-alpine
+FROM golang:1.14-alpine as agents
 
 WORKDIR /app
 
@@ -19,3 +19,11 @@ RUN env env GOOS=linux GOARCH=amd64 go build -o exec/vault-linux-amd64 cmd/main.
 # Windows Build
 RUN env GOOS=windows GOARCH=386 go build -o exec/vault-windows-386.exe cmd/main.go
 RUN env GOOS=windows GOARCH=amd64 go build -o exec/vault-windows-amd64.exe cmd/main.go
+
+
+
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=oss /app/exec ./exec
