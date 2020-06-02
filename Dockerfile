@@ -26,4 +26,4 @@ FROM scratch
 
 WORKDIR /app
 
-COPY --from=oss /app/exec ./exec
+COPY --from=agents /app/exec ./exec
