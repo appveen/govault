@@ -30,9 +30,6 @@ if [ ! $REL ]; then
     exit 0
 fi
 TAG=$REL
-if [ $2 ]; then
-    TAG=$TAG"-"$2
-fi
 
 echo "****************************************************"
 echo "odp:govault :: Using build :: "$TAG
