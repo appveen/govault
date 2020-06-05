@@ -26,4 +26,6 @@ FROM scratch
 
 WORKDIR /app
 
+COPY LICENSE .
 COPY --from=agents /app/exec ./exec
+
