@@ -2,7 +2,6 @@ package vault
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -11,7 +10,6 @@ type Vault struct {
 	mutex         sync.Mutex
 	storePassword string
 	trustore      *DB
-	queuedFiles   map[string]string
 }
 
 //VaultService - task of vault
@@ -20,10 +18,6 @@ type VaultService interface {
 	Upsert(key string, value string) error
 	Delete(key string) error
 	ChangePassword(newPassword string) error
-	PutIntoQueue(key string, value string)
-	DeleteFromQueue(key string)
-	GetFromQueue(key string) string
-	GetQueuedFiles() map[string]string
 	Close() error
 }
 
@@ -39,7 +33,6 @@ func CreateVault(filePath string, newPassword string) *Vault {
 	return &Vault{
 		trustore:      DB,
 		storePassword: newPassword,
-		queuedFiles:   make(map[string]string),
 	}
 }
 
@@ -69,7 +62,6 @@ func InitVault(filePath string, storePassword string) (*Vault, error) {
 	return &Vault{
 		trustore:      DB,
 		storePassword: storePassword,
-		queuedFiles:   make(map[string]string),
 	}, nil
 }
 
@@ -198,27 +190,4 @@ func (v *Vault) ChangePassword(newPassword string) error {
 func (v *Vault) Close() error {
 	err := v.trustore.CloseDB()
 	return err
-}
-
-//Push key & value into map
-func (v *Vault) PutIntoQueue(key string, value string) {
-	v.queuedFiles[key] = value
-	fmt.Println("Queued Files = ", v.queuedFiles)
-}
-
-//Get value from map
-func (v *Vault) GetFromQueue(key string) string {
-	return v.queuedFiles[key]
-}
-
-//Get value from map
-func (v *Vault) DeleteFromQueue(key string) {
-	fmt.Println("Queued Files before = ", v.queuedFiles)
-	delete(v.queuedFiles, key)
-	fmt.Println("Queued Files after = ", v.queuedFiles)
-}
-
-//Get queued files
-func (v *Vault) GetQueuedFiles() map[string]string {
-	return v.queuedFiles
 }
